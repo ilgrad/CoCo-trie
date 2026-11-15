@@ -93,4 +93,13 @@ TEST_CASE("Full byte alphabet and wide codes preserve exact binary keys") {
     std::stringstream file;wide.serialize(file);
     REQUIRE_THROWS_AS(CoCo_v2<>(file),std::runtime_error);
 }
+
+TEST_CASE("Elias-Fano is not chosen for a universe wider than 64 bits") {
+    // A 256-value radix makes the universe of this root 254 * 2^64, so u / n
+    // is exactly 2^64 and must not wrap to 0 below the Elias-Fano threshold.
+    std::vector<std::string> keys;
+    for (int c=1;c<256;++c) keys.push_back(std::string(1,char(c))+std::string(8,'x'));
+    using WideMap128 = CoCo_v2<1,uint128_t,18,0,sdsl::rank_support_v<1>,sdsl::rank_support_v<0,2>,sux::bits::SimpleSelectZero<>,uint256_t>;
+    binary_roundtrip<WideMap128>(keys);
+}
 #endif

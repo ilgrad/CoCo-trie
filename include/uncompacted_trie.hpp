@@ -519,7 +519,9 @@ public:
                 size_t space_bits_packed = -1, space_bits_elias_fano = -1, space_bits_bitvector = -1;
 
                 space_bits_packed = n * logu;
-                size_t u_div_n = u / n;
+                // u may need more than 64 bits; so may u / n, and a truncated ratio
+                // would let Elias-Fano, whose writer takes 64-bit values, encode it
+                code_type u_div_n = u / n;
                 if (i < MAX_L_THRS_EF and u_div_n < MAX_U_DIV_N) {
                     space_bits_elias_fano = ds2i::compact_elias_fano<code_type>::bitsize(params, u, n);
                     space_bits_elias_fano += bits_delta_code(u);
